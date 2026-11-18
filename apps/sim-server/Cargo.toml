@@ -1,0 +1,26 @@
+[package]
+name = "sim-server"
+description = "Formica server: runs the world loop and streams it to viewers over WebSockets."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+sim-core.workspace = true
+sim-proto.workspace = true
+clap.workspace = true
+anyhow.workspace = true
+tokio.workspace = true
+axum.workspace = true
+tower-http.workspace = true
+futures-util.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+[lints]
+workspace = true
+
+[dev-dependencies]
+tokio-tungstenite = "0.28"
+

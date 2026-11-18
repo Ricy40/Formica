@@ -1,0 +1,25 @@
+[package]
+name = "sim-core"
+description = "Formica simulation core: world, voxels, agents, determinism. No I/O."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+default = ["parallel"]
+parallel = ["dep:rayon"]
+
+[dependencies]
+serde.workspace = true
+postcard.workspace = true
+glam.workspace = true
+rand_pcg.workspace = true
+rand_core.workspace = true
+rayon = { workspace = true, optional = true }
+xxhash-rust.workspace = true
+libm.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Formica</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <aside id="panel">
+      <h1>Formica <span id="conn" class="pill">connecting…</span></h1>
+
+      <section>
+        <h2>View</h2>
+        <div class="modes" role="radiogroup" aria-label="Camera mode">
+          <button data-mode="iso" class="active" title="Isometric orbit (1)">Iso</button>
+          <button data-mode="top" title="Top-down (2)">Top</button>
+          <button data-mode="cutaway" title="Side cutaway (3)">Cutaway</button>
+          <button data-mode="free" title="Free 3D (4)">Free</button>
+        </div>
+        <div id="mode-help" class="help"></div>
+        <div id="cutaway-controls" hidden>
+          <label>Axis
+            <select id="cut-axis">
+              <option value="z">Z (front)</option>
+              <option value="x">X (side)</option>
+            </select>
+          </label>
+          <label>Depth <input id="cut-depth" type="range" min="0" max="32" step="1" value="14" />
+            <output id="cut-depth-out">14</output></label>
+        </div>
+        <div id="follow-row" class="help"></div>
+      </section>
+
+      <section>
+        <h2>Simulation</h2>
+        <div class="row">
+          <button id="pause">Pause</button>
+          <select id="speed" aria-label="Speed">
+            <option value="0.25">0.25×</option>
+            <option value="1" selected>1×</option>
+            <option value="4">4×</option>
+            <option value="16">16×</option>
+          </select>
+          <button id="save">Save snapshot</button>
+        </div>
+        <div class="row">
+          <button id="spawn">Spawn 100</button>
+          <button id="clear">Clear agents</button>
+        </div>
+        <div class="help">Shift-click terrain: dig · Ctrl-click: fill</div>
+      </section>
+
+      <section>
+        <h2>Stats</h2>
+        <dl id="stats"></dl>
+      </section>
+      <div id="notice" class="help"></div>
+    </aside>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

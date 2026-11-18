@@ -1,0 +1,16 @@
+[package]
+name = "sim-proto"
+description = "Formica wire protocol shared by server and viewer (serde + postcard)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+postcard.workspace = true
+sim-core.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true
