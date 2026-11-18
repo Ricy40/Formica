@@ -8,7 +8,8 @@
 import { CHUNK_SIZE, Material, type Vec3i } from "../proto/messages";
 
 export interface Cut {
-  axis: "x" | "z";
+  /** x/z: vertical slices seen from the side; y: horizontal slice seen from above. */
+  axis: "x" | "y" | "z";
   /** Voxels with coordinate >= depth along `axis` are removed. */
   depth: number;
 }
@@ -78,8 +79,7 @@ class Builder {
 export function meshChunk(mats: Uint8Array, origin: Vec3i, cut?: Cut): { solid: MeshData; water: MeshData } {
   const removed = (x: number, y: number, z: number) => {
     if (!cut) return false;
-    const w = cut.axis === "x" ? origin[0] + x : origin[2] + z;
-    void y;
+    const w = cut.axis === "x" ? origin[0] + x : cut.axis === "y" ? origin[1] + y : origin[2] + z;
     return w >= cut.depth;
   };
   const at = (x: number, y: number, z: number): number => {

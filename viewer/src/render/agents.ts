@@ -52,7 +52,8 @@ export class AgentLayer {
   private selectedColor = new THREE.Color(0xffb300);
   selectedId: number | null = null;
 
-  constructor(private scene: THREE.Scene) {
+  /** `scene` is the parent object; main.ts passes a ClippingGroup so the cutaway can clip agents. */
+  constructor(private scene: THREE.Object3D) {
     this.mesh = this.makeMesh(1024);
   }
 

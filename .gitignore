@@ -4,4 +4,4 @@ node_modules/
 viewer/dist/
 *.frmc
 !crates/sim-proto/fixtures/*
-.idea/workspace.xml
+.idea/

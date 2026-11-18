@@ -60,4 +60,17 @@ describe("meshChunk", () => {
     expect(maxZ).toBe(10);
     expect(triangleNormalsMatch(cut)).toBe(true);
   });
+
+  it("a horizontal (y) cut exposes a plan view of tunnels at that depth", () => {
+    const mats = new Uint8Array(CHUNK_VOLUME).fill(Material.Subsoil);
+    mats[idx(10, 7, 10)] = Material.Air; // a pocket just below the cut
+    const cut = meshChunk(mats, [0, 0, 0], { axis: "y", depth: 8 }).solid;
+    let maxY = 0;
+    for (let i = 1; i < cut.positions.length; i += 3) maxY = Math.max(maxY, cut.positions[i]);
+    expect(maxY).toBe(8);
+    // Slab 32 x 8 x 32 (2*32*32 + 4*32*8 faces); the pocket opens onto the cut top (-1 top
+    // face), and adds a floor plus 4 walls inside it.
+    expect(cut.indices.length).toBe((2 * S * S + 4 * S * 8 - 1 + 5) * 6);
+    expect(triangleNormalsMatch(cut)).toBe(true);
+  });
 });

@@ -34,7 +34,11 @@ const waterMaterial = new THREE.MeshLambertMaterial({
 
 const center = new THREE.Vector3(16, 18, 16);
 const rig = new CameraRig(renderer.domElement, center);
-const agents = new AgentLayer(scene);
+// WebGPURenderer ignores material.clippingPlanes; clipping is done with a ClippingGroup.
+const agentClip = new THREE.ClippingGroup();
+agentClip.enabled = false;
+scene.add(agentClip);
+const agents = new AgentLayer(agentClip);
 
 function resize() {
   const w = container.clientWidth;
@@ -114,18 +118,38 @@ function clearWorld() {
 
 // ---------- cutaway ----------
 let cutAxis: CutAxis = "z";
-let cutDepth = 14;
+// Remembered cut position per axis (world voxel coordinate). Y starts through the test chamber.
+const cutDepths: Record<CutAxis, number> = { x: 14, y: 11, z: 14 };
+let cutDepth = cutDepths.z;
 const clipPlane = new THREE.Plane();
+const AXIS_INDEX: Record<CutAxis, number> = { x: 0, y: 1, z: 2 };
+const CUT_NORMALS: Record<CutAxis, THREE.Vector3> = {
+  x: new THREE.Vector3(-1, 0, 0),
+  y: new THREE.Vector3(0, -1, 0),
+  z: new THREE.Vector3(0, 0, -1),
+};
+
+/** Points the slider at the current axis: its range is the world extent along that axis. */
+function syncCutSlider() {
+  const i = AXIS_INDEX[cutAxis];
+  const slider = $<HTMLInputElement>("cut-depth");
+  slider.min = String(worldMin[i]);
+  slider.max = String(worldMin[i] + worldSize[i]);
+  cutDepth = Math.min(Math.max(cutDepths[cutAxis], worldMin[i]), worldMin[i] + worldSize[i]);
+  slider.value = String(cutDepth);
+  $("cut-depth-out").textContent = String(cutDepth);
+  $("cut-depth-label").textContent = cutAxis === "y" ? "Height" : "Depth";
+}
 
 function applyCut() {
   if (rig.mode === "cutaway") {
     // Keep coordinate < depth along the axis (the camera looks from the +axis side).
-    clipPlane.set(cutAxis === "z" ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(-1, 0, 0), cutDepth);
-    agents.material.clippingPlanes = [clipPlane];
+    clipPlane.set(CUT_NORMALS[cutAxis], cutDepth);
+    agentClip.clippingPlanes = [clipPlane];
+    agentClip.enabled = true;
   } else {
-    agents.material.clippingPlanes = [];
+    agentClip.enabled = false;
   }
-  agents.material.needsUpdate = true;
   remeshAll();
 }
 
@@ -146,9 +170,7 @@ function onMessage(msg: ServerMsg) {
       clearWorld();
       worldMin = msg.hello.worldMin;
       worldSize = msg.hello.worldSize;
-      const depth = $<HTMLInputElement>("cut-depth");
-      depth.min = String(worldMin[2]);
-      depth.max = String(worldMin[2] + worldSize[2]);
+      syncCutSlider();
       if (!haveHello) {
         center.set(worldMin[0] + worldSize[0] / 2, worldMin[1] + worldSize[1] * 0.45, worldMin[2] + worldSize[2] / 2);
         rig.fitWorld(Math.max(...worldSize));
@@ -216,11 +238,13 @@ $("mode-help").textContent = MODE_HELP.iso;
 
 $<HTMLSelectElement>("cut-axis").addEventListener("change", (e) => {
   cutAxis = (e.target as HTMLSelectElement).value as CutAxis;
+  syncCutSlider();
   rig.setCutAxis(cutAxis);
   applyCut();
 });
 $<HTMLInputElement>("cut-depth").addEventListener("input", (e) => {
   cutDepth = Number((e.target as HTMLInputElement).value);
+  cutDepths[cutAxis] = cutDepth;
   $("cut-depth-out").textContent = String(cutDepth);
   applyCut();
 });

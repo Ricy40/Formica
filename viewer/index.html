@@ -25,9 +25,10 @@
             <select id="cut-axis">
               <option value="z">Z (front)</option>
               <option value="x">X (side)</option>
+              <option value="y">Y (horizontal)</option>
             </select>
           </label>
-          <label>Depth <input id="cut-depth" type="range" min="0" max="32" step="1" value="14" />
+          <label><span id="cut-depth-label">Depth</span> <input id="cut-depth" type="range" min="0" max="32" step="1" value="14" />
             <output id="cut-depth-out">14</output></label>
         </div>
         <div id="follow-row" class="help"></div>

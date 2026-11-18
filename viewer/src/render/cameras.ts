@@ -8,14 +8,14 @@ import * as THREE from "three/webgpu";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 export type CameraMode = "iso" | "top" | "cutaway" | "free";
-export type CutAxis = "x" | "z";
+export type CutAxis = "x" | "y" | "z";
 
 const ISO_POLAR = Math.acos(1 / Math.sqrt(3)); // camera along (1, 1, 1): 54.7356°
 
 export const MODE_HELP: Record<CameraMode, string> = {
   iso: "Drag: orbit · Q/E: rotate 90° · Wheel: zoom · Right-drag: pan",
   top: "Drag: pan · Wheel: zoom",
-  cutaway: "Drag: pan · Wheel: zoom · Slider: cut depth",
+  cutaway: "Drag: pan · Wheel: zoom · Axis: X/Z side slice, Y horizontal slice · Slider: cut position",
   free: "Drag: orbit · WASD/RF: move · Wheel: dolly · Click ant: follow · Esc: stop following",
 };
 
@@ -110,8 +110,14 @@ export class CameraRig {
         c.enableRotate = false;
         c.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
         c.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
-        c.minPolarAngle = c.maxPolarAngle = Math.PI / 2;
-        this.placeOrtho(Math.PI / 2, this.cutAxis === "z" ? 0 : Math.PI / 2);
+        if (this.cutAxis === "y") {
+          // Horizontal slice: look straight down onto the cut (a plan view of the nest).
+          c.minPolarAngle = c.maxPolarAngle = 0;
+          this.placeOrtho(1e-4, 0);
+        } else {
+          c.minPolarAngle = c.maxPolarAngle = Math.PI / 2;
+          this.placeOrtho(Math.PI / 2, this.cutAxis === "z" ? 0 : Math.PI / 2);
+        }
         break;
       case "free": {
         c.minPolarAngle = 0.05;
